@@ -92,4 +92,16 @@ export const imagesAPI = {
     api.get(`/images/search?query=${encodeURIComponent(query)}&count=${count || 8}`),
 };
 
+// Notifications API
+export const notificationsAPI = {
+  getPreferences: () => api.get('/notifications/preferences'),
+  updatePreferences: (data: {
+    enabled: boolean;
+    reminders: { dayBefore: boolean; morningOf: boolean; hourBefore: boolean };
+    notificationMethods: { sms: boolean; email: boolean };
+  }) => api.put('/notifications/preferences', data),
+  getHistory: (limit?: number) => api.get(`/notifications/history?limit=${limit || 50}`),
+  testNotification: () => api.post('/notifications/test'),
+};
+
 export default api;

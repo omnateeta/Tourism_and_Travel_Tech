@@ -1,5 +1,6 @@
 const { Itinerary } = require('../models');
 const itineraryService = require('../services/itineraryService');
+const notificationService = require('../services/notificationService');
 
 exports.generateItinerary = async (req, res) => {
   try {
@@ -23,6 +24,14 @@ exports.generateItinerary = async (req, res) => {
     });
 
     await itinerary.save();
+
+    // Schedule notifications for the new itinerary
+    try {
+      await notificationService.scheduleItineraryNotifications(itinerary, req.user._id);
+    } catch (notifError) {
+      console.error('Error scheduling notifications:', notifError);
+      // Don't fail the request if notifications fail
+    }
 
     res.status(201).json({
       message: 'Itinerary generated successfully',

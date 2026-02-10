@@ -12,7 +12,7 @@ import ItineraryView from '../components/ItineraryView';
 import WeatherWidget from '../components/WeatherWidget';
 import EventsWidget from '../components/EventsWidget';
 import MapView from '../components/MapView';
-import Assistant from '../components/Assistant';
+import AdvancedAssistant from '../components/AdvancedAssistant';
 import Profile from '../components/Profile';
 import Home from '../components/Home';
 import DestinationShowcase from '../components/DestinationShowcase';
@@ -216,7 +216,7 @@ const Dashboard: React.FC = () => {
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="max-w-3xl mx-auto"
             >
-              <Assistant />
+              <AdvancedAssistant />
             </motion.div>
           )}
 

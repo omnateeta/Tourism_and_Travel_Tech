@@ -64,21 +64,35 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: 'en'
     }
+  },
+  notificationPreferences: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    reminders: {
+      dayBefore: { type: Boolean, default: true },
+      morningOf: { type: Boolean, default: true },
+      hourBefore: { type: Boolean, default: true }
+    },
+    notificationMethods: {
+      sms: { type: Boolean, default: true },
+      email: { type: Boolean, default: false }
+    }
   }
 }, {
   timestamps: true
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
   
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (error) {
-    next(error);
+    throw error;
   }
 });
 

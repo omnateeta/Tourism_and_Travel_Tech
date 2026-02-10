@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import NotificationSettings from './NotificationSettings';
 import { 
   User, Mail, Phone, MapPin, Calendar, 
   Camera, Save, Edit2, X, CheckCircle, LogOut 
@@ -490,6 +491,16 @@ const Profile: React.FC = () => {
             </div>
           </motion.div>
         </div>
+      </motion.div>
+
+      {/* Notification Settings */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-8"
+      >
+        <NotificationSettings />
       </motion.div>
     </div>
   );
