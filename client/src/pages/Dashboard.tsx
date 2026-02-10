@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useTrip } from '../context/TripContext';
 import { 
   MapPin, Calendar, DollarSign, Compass, Globe, 
-  Sparkles, LogOut, Menu, X, Wind, Users, Ticket,
-  Leaf, Star, Clock, Map as MapIcon, MessageCircle
+  Sparkles, Menu, X, Wind, Users, Ticket,
+  Leaf, Star, Clock, Map as MapIcon, MessageCircle, User
 } from 'lucide-react';
 import TripPlanner from '../components/TripPlanner';
 import ItineraryView from '../components/ItineraryView';
@@ -13,72 +13,93 @@ import WeatherWidget from '../components/WeatherWidget';
 import EventsWidget from '../components/EventsWidget';
 import MapView from '../components/MapView';
 import Assistant from '../components/Assistant';
+import Profile from '../components/Profile';
+import Home from '../components/Home';
+import DestinationShowcase from '../components/DestinationShowcase';
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { currentItinerary, preferences } = useTrip();
-  const [activeTab, setActiveTab] = useState<'planner' | 'itinerary' | 'map' | 'assistant'>('planner');
+  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'profile'>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const tabs = [
-    { id: 'planner', label: 'Trip Planner', icon: Compass },
-    { id: 'itinerary', label: 'My Itinerary', icon: Calendar },
-    { id: 'map', label: 'Map View', icon: MapIcon },
-    { id: 'assistant', label: 'Assistant', icon: MessageCircle },
+    { id: 'home', label: 'Home', icon: Sparkles, color: 'from-amber-500 to-orange-500' },
+    { id: 'planner', label: 'Trip Planner', icon: Compass, color: 'from-blue-500 to-cyan-500' },
+    { id: 'itinerary', label: 'My Itinerary', icon: Calendar, color: 'from-purple-500 to-pink-500' },
+    { id: 'map', label: 'Map View', icon: MapIcon, color: 'from-emerald-500 to-teal-500' },
+    { id: 'assistant', label: 'Assistant', icon: MessageCircle, color: 'from-amber-500 to-orange-500' },
+    { id: 'profile', label: 'Profile', icon: User, color: 'from-rose-500 to-red-500' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-                Smart Travel
-              </span>
-            </div>
+    <div className="min-h-screen bg-gradient-mesh">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute top-1/2 -left-20 w-60 h-60 bg-secondary-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute -bottom-20 right-1/4 w-96 h-96 bg-accent-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+      </div>
 
-            <div className="hidden md:flex items-center gap-6">
-              {tabs.map((tab) => (
-                <button
+      {/* Glass Header */}
+      <header className="glass sticky top-0 z-50 border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <motion.div 
+              className="flex items-center gap-3 cursor-pointer"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              onClick={() => setActiveTab('home')}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <img 
+                src="/logo.png" 
+                alt="Tourism & Travel Tech" 
+                className="h-[130px] object-contain hover:opacity-90 transition-opacity" 
+              />
+            </motion.div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-2 bg-white/50 backdrop-blur-sm rounded-2xl p-1.5 border border-white/60 shadow-sm">
+              {tabs.map((tab, index) => (
+                <motion.button
                   key={tab.id}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'text-white shadow-lg'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className={`absolute inset-0 bg-gradient-to-r ${tab.color} rounded-xl`}
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </span>
+                </motion.button>
               ))}
-            </div>
+            </nav>
 
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
-                </div>
-              </div>
-              <button
-                onClick={logout}
-                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 text-gray-500"
-              >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+            {/* Mobile Menu Button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/60"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5 text-gray-700" /> : <Menu className="w-5 h-5 text-gray-700" />}
+            </motion.button>
           </div>
         </div>
 
@@ -89,25 +110,28 @@ const Dashboard: React.FC = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-200"
+              className="md:hidden glass border-t border-white/20"
             >
-              <div className="px-4 py-2 space-y-1">
-                {tabs.map((tab) => (
-                  <button
+              <div className="px-4 py-3 space-y-2">
+                {tabs.map((tab, index) => (
+                  <motion.button
                     key={tab.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
                     onClick={() => {
                       setActiveTab(tab.id as any);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
                       activeTab === tab.id
-                        ? 'bg-primary-50 text-primary-600'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
+                        : 'text-gray-600 hover:bg-white/60'
                     }`}
                   >
                     <tab.icon className="w-5 h-5" />
                     {tab.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.div>
@@ -116,24 +140,43 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait">
+          {activeTab === 'home' && (
+            <motion.div
+              key="home"
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <Home onStartPlanning={() => setActiveTab('planner')} />
+            </motion.div>
+          )}
+
           {activeTab === 'planner' && (
             <motion.div
               key="planner"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="grid grid-cols-1 lg:grid-cols-3 gap-8"
             >
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 space-y-6">
                 <TripPlanner />
+                <DestinationShowcase />
               </div>
               <div className="space-y-6">
                 {preferences.lat !== 0 && (
                   <>
                     <WeatherWidget lat={preferences.lat} lng={preferences.lng} />
-                    <EventsWidget lat={preferences.lat} lng={preferences.lng} />
+                    <EventsWidget 
+                      lat={preferences.lat} 
+                      lng={preferences.lng} 
+                      destination={preferences.destination}
+                      interests={preferences.interests}
+                    />
                   </>
                 )}
               </div>
@@ -143,9 +186,10 @@ const Dashboard: React.FC = () => {
           {activeTab === 'itinerary' && (
             <motion.div
               key="itinerary"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
               <ItineraryView />
             </motion.div>
@@ -154,10 +198,10 @@ const Dashboard: React.FC = () => {
           {activeTab === 'map' && (
             <motion.div
               key="map"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="h-[calc(100vh-200px)]"
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
               <MapView />
             </motion.div>
@@ -166,12 +210,25 @@ const Dashboard: React.FC = () => {
           {activeTab === 'assistant' && (
             <motion.div
               key="assistant"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="max-w-3xl mx-auto"
             >
               <Assistant />
+            </motion.div>
+          )}
+
+          {activeTab === 'profile' && (
+            <motion.div
+              key="profile"
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <Profile />
             </motion.div>
           )}
         </AnimatePresence>

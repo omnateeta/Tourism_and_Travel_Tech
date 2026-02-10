@@ -42,7 +42,9 @@ exports.getNearbyAttractions = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     const { lat, lng } = req.params;
-    const events = await eventsService.getEvents(parseFloat(lat), parseFloat(lng));
+    const { destination, interests } = req.query;
+    const interestsArray = interests ? interests.split(',') : [];
+    const events = await eventsService.getEvents(parseFloat(lat), parseFloat(lng), destination, interestsArray);
     res.json({ events });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch events', error: error.message });

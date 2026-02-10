@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 interface Activity {
   name: string;
@@ -16,6 +16,19 @@ interface Activity {
   isHiddenGem: boolean;
   images: string[];
   timeSlot: string;
+  phoneNumber?: string;
+  formattedPhone?: string;
+  address?: string;
+  website?: string;
+  rating?: number;
+  openingHours?: string[];
+  placeId?: string;
+  photos?: string[];
+  hasRealData?: boolean;
+  lat?: number;
+  lng?: number;
+  popularity?: 'low' | 'medium' | 'high';
+  tags?: Record<string, string>;
 }
 
 interface DayPlan {
@@ -59,28 +72,91 @@ interface TripContextType {
   setCurrentItinerary: (itinerary: Itinerary | null) => void;
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
+  clearTripData: () => void;
 }
 
 const defaultPreferences: TripPreferences = {
   destination: '',
   interests: [],
   budget: 'medium',
-  duration: 3,
+  duration: 0,
   startDate: new Date().toISOString().split('T')[0],
   language: 'en',
   lat: 0,
   lng: 0,
 };
 
+const STORAGE_KEY = 'smart_travel_itinerary';
+const PREFERENCES_KEY = 'smart_travel_preferences';
+
 const TripContext = createContext<TripContextType | undefined>(undefined);
 
 export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentItinerary, setCurrentItinerary] = useState<Itinerary | null>(null);
-  const [preferences, setPreferencesState] = useState<TripPreferences>(defaultPreferences);
+  // Load from localStorage on initial render
+  const [currentItinerary, setCurrentItineraryState] = useState<Itinerary | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse saved itinerary:', e);
+        }
+      }
+    }
+    return null;
+  });
+  
+  const [preferences, setPreferencesState] = useState<TripPreferences>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(PREFERENCES_KEY);
+      if (saved) {
+        try {
+          return { ...defaultPreferences, ...JSON.parse(saved) };
+        } catch (e) {
+          console.error('Failed to parse saved preferences:', e);
+        }
+      }
+    }
+    return defaultPreferences;
+  });
+  
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Save to localStorage whenever itinerary changes
+  useEffect(() => {
+    if (currentItinerary) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentItinerary));
+    }
+  }, [currentItinerary]);
+
+  // Save to localStorage whenever preferences change
+  useEffect(() => {
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));
+  }, [preferences]);
+
+  const setCurrentItinerary = (itinerary: Itinerary | null) => {
+    setCurrentItineraryState(itinerary);
+    if (itinerary) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(itinerary));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
   const setPreferences = (prefs: Partial<TripPreferences>) => {
-    setPreferencesState((prev) => ({ ...prev, ...prefs }));
+    setPreferencesState((prev) => {
+      const updated = { ...prev, ...prefs };
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const clearTripData = () => {
+    setCurrentItineraryState(null);
+    setPreferencesState(defaultPreferences);
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(PREFERENCES_KEY);
   };
 
   return (
@@ -92,6 +168,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentItinerary,
         isGenerating,
         setIsGenerating,
+        clearTripData,
       }}
     >
       {children}

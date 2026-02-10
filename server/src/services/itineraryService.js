@@ -1,5 +1,6 @@
 const placesService = require('./placesService');
 const weatherService = require('./weatherService');
+const googlePlacesService = require('./googlePlacesService');
 
 class ItineraryService {
   async generateItinerary(preferences) {
@@ -21,6 +22,9 @@ class ItineraryService {
       new Date(startDate),
       weather
     );
+    
+    // Fetch real phone numbers and details from Google Places for all activities
+    await this.enrichActivitiesWithPlaceDetails(days, lat, lng);
     
     // Calculate overall sustainability score
     const totalSustainabilityScore = Math.round(
@@ -45,6 +49,75 @@ class ItineraryService {
       interests,
       budget
     };
+  }
+
+  async enrichActivitiesWithPlaceDetails(days, lat, lng) {
+    // Collect all activities
+    const allActivities = [];
+    days.forEach(day => {
+      day.activities.forEach(activity => {
+        allActivities.push(activity);
+      });
+    });
+
+    // Fetch place details for all activities in parallel (with rate limiting)
+    const placeDetailsPromises = allActivities.map(async (activity) => {
+      try {
+        // Use the activity's specific coordinates if available, otherwise use destination coordinates
+        const searchLat = activity.location?.lat || activity.lat || lat;
+        const searchLng = activity.location?.lng || activity.lng || lng;
+        
+        // Include location/address in search query for better results
+        let searchQuery = activity.name;
+        if (activity.location?.address && typeof activity.location.address === 'string') {
+          searchQuery = `${activity.name}, ${activity.location.address}`;
+        }
+        
+        const details = await googlePlacesService.searchPlaceDetails(searchQuery, searchLat, searchLng);
+        
+        // Enrich activity with real data
+        activity.phoneNumber = details.phoneNumber || details.formattedPhone || null;
+        activity.formattedPhone = details.formattedPhone || null;
+        activity.address = details.address || activity.location?.address || activity.location;
+        activity.website = details.website || null;
+        activity.rating = details.rating || activity.rating;
+        activity.openingHours = details.openingHours || null;
+        activity.placeId = details.placeId || null;
+        activity.photos = details.photos || [];
+        
+        // Update location if available from Google Places
+        if (details.location) {
+          activity.location = {
+            ...activity.location,
+            lat: details.location.lat,
+            lng: details.location.lng,
+            address: details.address || activity.location?.address
+          };
+        }
+        
+        // Mark if this is real data or fallback
+        activity.hasRealData = !details.isFallback;
+        
+        return { activity, details };
+      } catch (error) {
+        console.error(`Error enriching ${activity.name}:`, error.message);
+        // Use fallback data
+        const fallback = googlePlacesService.getFallbackPlaceDetails(activity.name);
+        activity.phoneNumber = fallback.phoneNumber;
+        activity.formattedPhone = fallback.formattedPhone;
+        activity.hasRealData = false;
+        return { activity, details: fallback };
+      }
+    });
+
+    // Process with delay to respect rate limits
+    for (let i = 0; i < placeDetailsPromises.length; i++) {
+      await placeDetailsPromises[i];
+      // Small delay to avoid rate limiting
+      if (i < placeDetailsPromises.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 150));
+      }
+    }
   }
 
   scoreAttractions(attractions, interests, budget) {
@@ -88,15 +161,16 @@ class ItineraryService {
   }
 
   estimateCost(attraction) {
+    // Base costs in Indian Rupees (₹)
     const baseCosts = {
-      culture: 15,
-      food: 25,
-      nature: 5,
-      history: 10,
-      shopping: 30,
-      adventure: 40
+      culture: 500,      // Museums, galleries - ₹500
+      food: 800,         // Restaurants - ₹800
+      nature: 200,       // Parks, nature spots - ₹200
+      history: 400,      // Historic sites - ₹400
+      shopping: 1000,    // Shopping - ₹1000
+      adventure: 1500    // Adventure activities - ₹1500
     };
-    return baseCosts[attraction.type] || 20;
+    return baseCosts[attraction.type] || 600;
   }
 
   calculateSustainability(attraction) {

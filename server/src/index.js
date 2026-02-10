@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const itineraryRoutes = require('./routes/itineraries');
 const dataRoutes = require('./routes/data');
 const assistantRoutes = require('./routes/assistant');
+const imageRoutes = require('./routes/images');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/assistant', assistantRoutes);
+app.use('/api/images', imageRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

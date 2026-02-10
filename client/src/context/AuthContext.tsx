@@ -5,6 +5,18 @@ interface User {
   id: string;
   email: string;
   name: string;
+  lastName?: string;
+  age?: number;
+  gender?: string;
+  phoneNumber?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+  };
+  profileImage?: string;
   preferences: {
     interests: string[];
     budget: string;
@@ -19,6 +31,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -66,6 +79,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
+  const updateProfile = async (data: Partial<User>) => {
+    const response = await authAPI.updateProfile(data);
+    setUser(response.data.user);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -75,6 +93,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login,
         register,
         logout,
+        updateProfile,
       }}
     >
       {children}

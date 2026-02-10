@@ -25,6 +25,21 @@ export const authAPI = {
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
+  updateProfile: (data: {
+    name?: string;
+    lastName?: string;
+    age?: number;
+    gender?: string;
+    phoneNumber?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      zipCode?: string;
+    };
+    profileImage?: string;
+  }) => api.put('/auth/profile', data),
 };
 
 // Itinerary API
@@ -51,8 +66,14 @@ export const dataAPI = {
     api.get(`/data/places/search?q=${encodeURIComponent(query)}`),
   getNearbyAttractions: (lat: number, lng: number, radius?: number) =>
     api.get(`/data/places/nearby?lat=${lat}&lng=${lng}&radius=${radius || 5000}`),
-  getEvents: (lat: number, lng: number) =>
-    api.get(`/data/events/${lat}/${lng}`),
+  getEvents: (lat: number, lng: number, destination?: string, interests?: string[]) => {
+    let url = `/data/events/${lat}/${lng}`;
+    const params: string[] = [];
+    if (destination) params.push(`destination=${encodeURIComponent(destination)}`);
+    if (interests && interests.length > 0) params.push(`interests=${encodeURIComponent(interests.join(','))}`);
+    if (params.length > 0) url += `?${params.join('&')}`;
+    return api.get(url);
+  },
 };
 
 // Assistant API
@@ -61,6 +82,14 @@ export const assistantAPI = {
     api.post('/assistant/chat', data),
   getSuggestions: (language: string, destination: string) =>
     api.get(`/assistant/suggestions?language=${language}&destination=${encodeURIComponent(destination)}`),
+};
+
+// Images API
+export const imagesAPI = {
+  getDestinationImages: (destination: string, count?: number) =>
+    api.get(`/images/destination/${encodeURIComponent(destination)}?count=${count || 8}`),
+  searchImages: (query: string, count?: number) =>
+    api.get(`/images/search?query=${encodeURIComponent(query)}&count=${count || 8}`),
 };
 
 export default api;

@@ -42,8 +42,8 @@ const Register: React.FC<RegisterProps> = ({ onToggle }) => {
           className="card p-8"
         >
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 mb-4">
-              <Plane className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center mb-4">
+              <img src="/logo.png" alt="Tourism & Travel Tech" className="h-24" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
             <p className="text-gray-500 mt-2">Start your journey with us</p>
