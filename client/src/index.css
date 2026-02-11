@@ -52,6 +52,17 @@
     background-color: #f9fafb;
     color: #111827;
     font-size: 16px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  html {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
   }
 }
 

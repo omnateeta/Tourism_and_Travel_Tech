@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
 import { useTrip } from '../context/TripContext';
 import { 
-  MapPin, Calendar, DollarSign, Compass, Globe, 
-  Sparkles, Menu, X, Wind, Users, Ticket,
-  Leaf, Star, Clock, Map as MapIcon, MessageCircle, User, Bed, Shield
+  Calendar, Compass, 
+  Sparkles, Menu, X, Map as MapIcon, MessageCircle, User, Bed, Headphones
 } from 'lucide-react';
 import TripPlanner from '../components/TripPlanner';
 import ItineraryView from '../components/ItineraryView';
@@ -18,11 +16,11 @@ import Home from '../components/Home';
 import DestinationShowcase from '../components/DestinationShowcase';
 import HotelBookingPage from '../components/HotelBookingPage';
 import SecurityContacts from '../components/SecurityContacts';
+import EmployeeGuide from '../components/EmployeeGuide';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
-  const { currentItinerary, preferences } = useTrip();
-  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'hotels' | 'profile'>('home');
+  const { preferences } = useTrip();
+  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'hotels' | 'guide' | 'profile'>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const tabs = [
@@ -32,11 +30,12 @@ const Dashboard: React.FC = () => {
     { id: 'map', label: 'Map View', icon: MapIcon, color: 'from-emerald-500 to-teal-500' },
     { id: 'assistant', label: 'Assistant', icon: MessageCircle, color: 'from-amber-500 to-orange-500' },
     { id: 'hotels', label: 'Hotels', icon: Bed, color: 'from-indigo-500 to-purple-500' },
+    { id: 'guide', label: 'Employee Guide', icon: Headphones, color: 'from-green-500 to-teal-500' },
     { id: 'profile', label: 'Profile', icon: User, color: 'from-rose-500 to-red-500' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-mesh">
+    <div className="min-h-screen bg-gradient-mesh w-full">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl animate-float" />
@@ -45,9 +44,9 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Glass Header */}
-      <header className="glass sticky top-0 z-50 border-b border-white/20 shadow-sm">
+      <header className="glass sticky top-0 z-50 border-b border-white/20 shadow-sm w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20 max-w-7xl mx-auto w-full">
+          <div className="flex items-center justify-between h-16 md:h-20 w-full mx-auto">
             {/* Logo */}
             <motion.div 
               className="flex items-center gap-3 cursor-pointer"
@@ -150,7 +149,7 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="relative w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="w-full mx-auto">
         <AnimatePresence mode="wait">
           {activeTab === 'home' && (
             <motion.div
@@ -178,12 +177,12 @@ const Dashboard: React.FC = () => {
                 <DestinationShowcase />
               </div>
               <div className="space-y-6">
-                {preferences.lat !== 0 && (
+                {preferences.lat && preferences.lng && preferences.lat !== 0 && (
                   <>
-                    <WeatherWidget lat={preferences.lat} lng={preferences.lng} />
+                    <WeatherWidget lat={preferences.lat as number} lng={preferences.lng as number} />
                     <EventsWidget 
-                      lat={preferences.lat} 
-                      lng={preferences.lng} 
+                      lat={preferences.lat as number} 
+                      lng={preferences.lng as number} 
                       destination={preferences.destination}
                       interests={preferences.interests}
                     />
@@ -239,6 +238,18 @@ const Dashboard: React.FC = () => {
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             >
               <HotelBookingPage />
+            </motion.div>
+          )}
+
+          {activeTab === 'guide' && (
+            <motion.div
+              key="guide"
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <EmployeeGuide />
             </motion.div>
           )}
 

@@ -127,6 +127,16 @@ export const profileAPI = {
   }
 };
 
+// Employee API
+export const employeeAPI = {
+  getAll: () => api.get('/employees'),
+  getById: (id: string) => api.get(`/employees/${id}`),
+  getByDepartment: (department: string) => api.get(`/employees/department/${department}`),
+  search: (query: string) => api.get(`/employees/search?query=${encodeURIComponent(query)}`),
+  getStats: () => api.get('/employees/stats/overview'),
+  initiateCall: (employeeId: string) => api.post('/employees/call', { employeeId }),
+};
+
 // Hotel API
 export const hotelAPI = {
   search: (params: {

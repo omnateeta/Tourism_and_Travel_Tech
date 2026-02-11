@@ -79,7 +79,7 @@ const Home: React.FC<HomeProps> = ({ onStartPlanning }) => {
   }, []);
 
   return (
-    <div className="relative min-h-[calc(100vh-120px)] overflow-hidden rounded-3xl">
+    <div className="relative min-h-[calc(100vh-120px)] overflow-hidden rounded-3xl w-full">
       {/* Video Background */}
       <div className="absolute inset-0">
         <video
@@ -106,7 +106,7 @@ const Home: React.FC<HomeProps> = ({ onStartPlanning }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto"
+          className="w-full max-w-4xl mx-auto"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -146,7 +146,7 @@ const Home: React.FC<HomeProps> = ({ onStartPlanning }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-16 max-w-2xl mx-auto"
+          className="mt-16 w-full max-w-2xl mx-auto"
         >
           <div className="glass bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <Quote className="w-8 h-8 text-white/40 mb-4 mx-auto" />
@@ -189,7 +189,7 @@ const Home: React.FC<HomeProps> = ({ onStartPlanning }) => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto w-full px-4"
+          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 w-full px-4"
         >
           {features.map((feature, index) => (
             <motion.div

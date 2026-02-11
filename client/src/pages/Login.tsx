@@ -32,7 +32,7 @@ const Login: React.FC<LoginProps> = ({ onToggle }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 p-4"
+      className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 p-4"
     >
       <div className="w-full max-w-md">
         <motion.div
