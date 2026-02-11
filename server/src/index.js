@@ -15,6 +15,7 @@ const dataRoutes = require('./routes/data');
 const assistantRoutes = require('./routes/assistant');
 const imageRoutes = require('./routes/images');
 const notificationRoutes = require('./routes/notifications');
+const hotelRoutes = require('./routes/hotels');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/data', dataRoutes);
 app.use('/api/assistant', assistantRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/hotels', hotelRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
