@@ -104,6 +104,29 @@ export const notificationsAPI = {
   testNotification: () => api.post('/notifications/test'),
 };
 
+// Profile API
+export const profileAPI = {
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('profileImage', file);
+    
+    return axios.post(`${API_URL}/profile/upload-image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+    });
+  },
+  
+  removeImage: () => {
+    return api.delete('/profile/remove-image');
+  },
+  
+  getProfile: () => {
+    return api.get('/profile/me');
+  }
+};
+
 // Hotel API
 export const hotelAPI = {
   search: (params: {

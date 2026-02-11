@@ -51,33 +51,13 @@ exports.getHotelDetails = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Mock hotel details
-    const hotel = {
-      id,
-      name: 'Grand Plaza Hotel',
-      location: 'Downtown Area',
-      rating: 4.8,
-      price: 189,
-      imageUrl: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-      images: [
-        'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1561501900-3701fa6a0864?w=400&h=250&fit=crop'
-      ],
-      amenities: ['wifi', 'parking', 'pool', 'spa', 'restaurant', 'gym'],
-      distanceFromCenter: '0.2 km',
-      description: 'Luxury hotel with stunning city views and premium amenities. Perfect for business travelers and tourists alike.',
-      reviews: [
-        { user: 'John D.', rating: 5, comment: 'Amazing experience!' },
-        { user: 'Sarah M.', rating: 4, comment: 'Great location and service.' }
-      ],
-      policies: {
-        checkIn: '3:00 PM',
-        checkOut: '11:00 AM',
-        cancellation: 'Free cancellation until 24 hours before arrival'
-      }
-    };
-
+    // Use the Hotel model to get real hotel details
+    const hotel = await Hotel.findById(id);
+    
+    if (!hotel) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
+    
     res.json(hotel);
   } catch (error) {
     console.error('Hotel details error:', error);

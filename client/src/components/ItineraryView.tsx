@@ -518,12 +518,13 @@ const ItineraryView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full">
+      <div className="space-y-6 max-w-7xl mx-auto w-full">
       {/* Header */}
       <div className="card p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{currentItinerary.destination.name}</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{currentItinerary.destination.name}</h2>
             <p className="text-gray-500">
               {new Date(currentItinerary.startDate).toLocaleDateString()} - {new Date(currentItinerary.endDate).toLocaleDateString()}
             </p>
@@ -640,7 +641,8 @@ const ItineraryView: React.FC = () => {
         ))}
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default ItineraryView;

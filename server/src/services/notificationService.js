@@ -114,6 +114,13 @@ class NotificationService {
   parseTimeSlot(timeSlot, baseDate) {
     const date = new Date(baseDate);
     
+    // Check if timeSlot is valid before processing
+    if (!timeSlot || typeof timeSlot !== 'string') {
+      // Return the base date with default time (12:00 PM)
+      date.setHours(12, 0, 0, 0);
+      return date;
+    }
+    
     // Handle common time formats
     const timeMatch = timeSlot.match(/(\d+):?(\d*)?\s*(AM|PM|am|pm)?/i);
     if (timeMatch) {

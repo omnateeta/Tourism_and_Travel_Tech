@@ -50,6 +50,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  profileImagePublicId: {
+    type: String,
+    default: ''
+  },
+  profileImageFormat: {
+    type: String,
+    default: ''
+  },
+  profileImageSize: {
+    type: Number,
+    default: 0
+  },
   preferences: {
     interests: [{
       type: String,

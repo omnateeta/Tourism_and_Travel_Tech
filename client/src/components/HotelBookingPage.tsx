@@ -95,16 +95,17 @@ const HotelBookingPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="w-full p-4 sm:p-6">
+      <div className="max-w-6xl mx-auto w-full">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Find & Book Your Stay</h1>
-        <p className="text-gray-600">Discover perfect accommodations for your journey</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Find & Book Your Stay</h1>
+        <p className="text-lg text-gray-600">Discover perfect accommodations for your journey</p>
       </div>
 
       {/* Search Form */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
             <div className="relative">
               <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -113,34 +114,36 @@ const HotelBookingPage: React.FC = () => {
                 value={filters.destination || preferences.destination || ''}
                 onChange={(e) => setFilters({...filters, destination: e.target.value})}
                 placeholder={preferences.destination ? `Searching hotels in ${preferences.destination}` : "Where are you going?"}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Check-in</label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                value={filters.checkIn}
-                onChange={(e) => setFilters({...filters, checkIn: e.target.value})}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Check-in</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type="date"
+                  value={filters.checkIn}
+                  onChange={(e) => setFilters({...filters, checkIn: e.target.value})}
+                  className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Check-out</label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                value={filters.checkOut}
-                onChange={(e) => setFilters({...filters, checkOut: e.target.value})}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Check-out</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <input
+                  type="date"
+                  value={filters.checkOut}
+                  onChange={(e) => setFilters({...filters, checkOut: e.target.value})}
+                  className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                />
+              </div>
             </div>
           </div>
 
@@ -151,7 +154,7 @@ const HotelBookingPage: React.FC = () => {
               <select
                 value={filters.guests}
                 onChange={(e) => setFilters({...filters, guests: parseInt(e.target.value)})}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-lg"
               >
                 {[1, 2, 3, 4, 5, 6].map(num => (
                   <option key={num} value={num}>{num} {num === 1 ? 'Guest' : 'Guests'}</option>
@@ -187,10 +190,10 @@ const HotelBookingPage: React.FC = () => {
       {/* Hotel Results */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900">
             {hotels.length} {hotels.length === 1 ? 'Property' : 'Properties'} Available
           </h2>
-          <div className="text-sm text-gray-600">
+          <div className="text-base text-gray-600">
             Showing results for {filters.destination}
           </div>
         </div>
@@ -200,7 +203,7 @@ const HotelBookingPage: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : hotels.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {hotels.map((hotel) => (
               <motion.div
                 key={hotel.id}
@@ -231,13 +234,13 @@ const HotelBookingPage: React.FC = () => {
                 
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">{hotel.name}</h3>
-                    <span className="text-xl font-bold text-blue-600">${hotel.price}<span className="text-sm font-normal text-gray-500">/night</span></span>
+                    <h3 className="text-xl font-bold text-gray-900">{hotel.name}</h3>
+                    <span className="text-2xl font-bold text-blue-600">${hotel.price}<span className="text-base font-normal text-gray-500">/night</span></span>
                   </div>
                   
-                  <p className="text-gray-600 text-sm mb-3">{hotel.location}</p>
+                  <p className="text-gray-600 text-base mb-3">{hotel.location}</p>
                   
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-2">{hotel.description}</p>
+                  <p className="text-gray-700 text-base mb-4 line-clamp-2">{hotel.description}</p>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
                     {hotel.amenities.slice(0, 4).map((amenity, index) => (
@@ -285,7 +288,7 @@ const HotelBookingPage: React.FC = () => {
           <Star className="w-6 h-6 text-yellow-500" />
           Recommended for You
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-xl p-4 flex items-center gap-4">
             <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
             <div>
@@ -310,7 +313,8 @@ const HotelBookingPage: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default HotelBookingPage;

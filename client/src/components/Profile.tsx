@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 const Profile: React.FC = () => {
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, uploadProfileImage: updateProfileImage, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -37,14 +37,24 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, profileImage: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Update the UI immediately with the preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData({ ...formData, profileImage: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+        
+        // Upload to Cloudinary
+        await updateProfileImage(file);
+      } catch (error) {
+        console.error('Failed to upload profile image:', error);
+        // Revert to previous image if upload fails
+        setFormData({ ...formData, profileImage: user?.profileImage || '' });
+      }
     }
   };
 
@@ -101,7 +111,8 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="w-full">
+      <div className="max-w-5xl mx-auto w-full">
       {/* Success Notification */}
       <AnimatePresence>
         {showSuccess && (
@@ -143,10 +154,10 @@ const Profile: React.FC = () => {
                 <User className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-white font-[family-name:var(--font-family-display)]">
+                <h2 className="text-4xl font-bold text-white font-[family-name:var(--font-family-display)]">
                   My Profile
                 </h2>
-                <p className="text-white/80 text-sm mt-1">Manage your personal information</p>
+                <p className="text-white/80 text-base mt-1">Manage your personal information</p>
               </div>
             </div>
             
@@ -258,7 +269,7 @@ const Profile: React.FC = () => {
           </div>
 
           {/* Form Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-8">
             {/* Personal Information */}
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -302,7 +313,7 @@ const Profile: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Age
@@ -403,8 +414,8 @@ const Profile: React.FC = () => {
               <h3 className="text-lg font-bold text-gray-900">Address</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-1 gap-5">
+              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Street Address
                 </label>
@@ -421,72 +432,76 @@ const Profile: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  City
-                </label>
-                <input
-                  type="text"
-                  value={formData.address.city}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    address: { ...formData.address, city: e.target.value }
-                  })}
-                  disabled={!isEditing}
-                  placeholder="Enter city"
-                  className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address.city}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      address: { ...formData.address, city: e.target.value }
+                    })}
+                    disabled={!isEditing}
+                    placeholder="Enter city"
+                    className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address.state}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      address: { ...formData.address, state: e.target.value }
+                    })}
+                    disabled={!isEditing}
+                    placeholder="Enter state"
+                    className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  State
-                </label>
-                <input
-                  type="text"
-                  value={formData.address.state}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    address: { ...formData.address, state: e.target.value }
-                  })}
-                  disabled={!isEditing}
-                  placeholder="Enter state"
-                  className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
-                />
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address.country}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      address: { ...formData.address, country: e.target.value }
+                    })}
+                    disabled={!isEditing}
+                    placeholder="Enter country"
+                    className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Country
-                </label>
-                <input
-                  type="text"
-                  value={formData.address.country}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    address: { ...formData.address, country: e.target.value }
-                  })}
-                  disabled={!isEditing}
-                  placeholder="Enter country"
-                  className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  ZIP Code
-                </label>
-                <input
-                  type="text"
-                  value={formData.address.zipCode}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    address: { ...formData.address, zipCode: e.target.value }
-                  })}
-                  disabled={!isEditing}
-                  placeholder="Enter ZIP code"
-                  className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    ZIP Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address.zipCode}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      address: { ...formData.address, zipCode: e.target.value }
+                    })}
+                    disabled={!isEditing}
+                    placeholder="Enter ZIP code"
+                    className="input-field disabled:bg-gray-50/50 disabled:text-gray-500"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>
@@ -503,7 +518,8 @@ const Profile: React.FC = () => {
         <NotificationSettings />
       </motion.div>
     </div>
-  );
+  </div>
+);
 };
 
 export default Profile;

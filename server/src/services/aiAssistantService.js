@@ -1,9 +1,9 @@
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const OpenAI = require('openai');
 
 class AIAssistantService {
   constructor() {
-    this.openai = null;
     this.systemPrompt = `You are an expert travel assistant named Smart Travel Assistant. You help users with:
 - Travel planning and itinerary creation
 - Destination recommendations and hidden gems
@@ -22,6 +22,38 @@ class AIAssistantService {
 
 Always be helpful, friendly, and provide accurate information. If you don't know something, acknowledge it and suggest where to find reliable information. Keep responses concise but informative, typically 2-4 sentences unless more detail is needed.`;
 
+    // Initialize OpenAI client if API key is available and valid
+    if (process.env.OPENAI_API_KEY && 
+        process.env.OPENAI_API_KEY !== 'your_openai_api_key_here' && 
+        process.env.OPENAI_API_KEY.trim() !== '' &&
+        process.env.OPENAI_API_KEY.startsWith('sk-')) {
+      try {
+        // Check if it's an OpenRouter key (starts with sk-or-)
+        if (process.env.OPENAI_API_KEY.startsWith('sk-or-')) {
+          // For OpenRouter, we still use the OpenAI SDK but with OpenRouter base URL
+          this.openai = new OpenAI({ 
+            apiKey: process.env.OPENAI_API_KEY,
+            baseURL: 'https://openrouter.ai/api/v1',
+            defaultHeaders: {
+              'HTTP-Referer': process.env.YOUR_SITE_URL || 'http://localhost:5173',
+              'X-Title': process.env.YOUR_SITE_NAME || 'Smart Travel Assistant',
+            },
+          });
+          console.log('✅ OpenRouter travel assistant initialized successfully');
+        } else {
+          // Standard OpenAI key
+          this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+          console.log('✅ OpenAI travel assistant initialized successfully');
+        }
+      } catch (error) {
+        console.error('❌ Failed to initialize OpenAI/OpenRouter client:', error.message);
+        this.openai = null;
+      }
+    } else {
+      console.log('⚠️  OpenAI API key not found, invalid format, or placeholder. OpenAI API key should start with "sk-". Using fallback responses');
+      this.openai = null;
+    }
+    
     // Initialize Google Gemini client if API key is available and valid
     if (process.env.GEMINI_API_KEY && 
         process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here' && 
@@ -41,14 +73,96 @@ Always be helpful, friendly, and provide accurate information. If you don't know
   }
 
   async getTravelResponse(message, language = 'en', context = {}) {
-    // If Google Gemini is not properly configured, use fallback responses
-    if (!this.model) {
-      console.log('Using fallback responses due to Google Gemini configuration issue');
+    // If OpenAI is properly configured, use it
+    if (this.openai) {
+      try {
+        console.log(`🤖 Processing travel query: "${message.substring(0, 50)}..."`);
+        
+        // Build context information
+        let contextInfo = '';
+        if (context.destination) {
+          contextInfo += `📍 Destination: ${context.destination}\n`;
+        }
+        if (context.weather) {
+          contextInfo += `☀️  Weather: ${context.weather.description}, ${context.weather.temperature}°C\n`;
+        }
+        if (context.sustainabilityScore) {
+          contextInfo += `🌍 Sustainability Score: ${context.sustainabilityScore}/100\n`;
+        }
+        if (context.crowdLevel) {
+          contextInfo += `👥 Crowd Level: ${context.crowdLevel}\n`;
+        }
+        
+        if (contextInfo) {
+          contextInfo = `Context Information:\n${contextInfo}\nQuestion: `;
+        }
+
+        const prompt = `${this.systemPrompt}\n\n${contextInfo}${message}`;
+
+        // Make API call to OpenAI
+        const completion = await this.openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: this.systemPrompt },
+            { role: 'user', content: `${contextInfo}${message}` }
+          ],
+          max_tokens: 400,
+          temperature: 0.7,
+        });
+
+        const response = completion.choices[0].message.content.trim();
+        console.log('✅ OpenAI response generated successfully');
+        
+        // Determine response type for UI styling
+        let type = this.determineResponseType(response, message, context);
+
+        return {
+          response,
+          type,
+          language,
+          source: 'openai',
+          timestamp: new Date().toISOString()
+        };
+
+      } catch (error) {
+        console.error('❌ OpenAI API error:', error.message);
+        console.error('Error details:', error);
+        
+        // Handle specific OpenAI API errors
+        if (error.message && error.message.includes('invalid_api_key')) {
+          console.error('⚠️  Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env file');
+        } else if (error.message && error.message.includes('insufficient_quota')) {
+          console.error('⚠️  OpenAI API quota exceeded. Please check your usage limits');
+        } else if (error.message && error.message.includes('rate_limit_exceeded')) {
+          console.error('⚠️  OpenAI rate limit exceeded. Please slow down requests');
+        }
+        
+        // Fallback to Google Gemini if available
+        if (this.model) {
+          return this.getGeminiResponse(message, language, context);
+        } else {
+          // Fallback to default responses
+          const fallbackResult = this.getFallbackResponse(message, language, context);
+          return {
+            ...fallbackResult,
+            source: 'fallback',
+            errorMessage: error.message
+          };
+        }
+      }
+    } else if (this.model) {
+      // If OpenAI is not available but Gemini is, use Gemini
+      return this.getGeminiResponse(message, language, context);
+    } else {
+      // If neither is available, use fallback responses
+      console.log('Using fallback responses due to no AI provider configured');
       return this.getFallbackResponse(message, language, context);
     }
-
+  }
+  
+  async getGeminiResponse(message, language = 'en', context = {}) {
     try {
-      console.log(`🤖 Processing travel query: "${message.substring(0, 50)}..."`);
+      console.log(`🤖 Processing travel query with Gemini: "${message.substring(0, 50)}..."`);
       
       // Build context information
       let contextInfo = '';
@@ -307,10 +421,76 @@ Always be helpful, friendly, and provide accurate information. If you don't know
 
   // Get intelligent suggestions based on destination and context
   async getSuggestions(destination, language = 'en', context = {}) {
-    if (!this.model) {
+    // If OpenAI is available, use it
+    if (this.openai) {
+      try {
+        const prompt = `Generate 4 travel-related questions or suggestions for someone visiting ${destination}. Make them specific and helpful. Return as a JSON array of strings.`;
+
+        const systemPrompt = "You are a travel expert. Generate exactly 4 helpful travel questions or suggestions as a JSON array. Example: [\"What's the best time to visit?\", \"What are the must-see attractions?\", \"What's the local cuisine like?\", \"How do I get around?\"]";
+        
+        const fullPrompt = `${systemPrompt}
+
+${prompt}`;
+
+        // Make API call to OpenAI
+        const completion = await this.openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ],
+          max_tokens: 150,
+          temperature: 0.8,
+        });
+
+        let suggestions;
+        try {
+          // Parse the JSON response
+          const responseText = completion.choices[0].message.content.trim();
+          // Extract JSON array from response if it contains other text
+          const jsonMatch = responseText.match(/\[.*\]/s);
+          if (jsonMatch) {
+            suggestions = JSON.parse(jsonMatch[0]);
+          } else {
+            // If no JSON array found, use fallback
+            suggestions = this.getFallbackSuggestions(destination, language);
+          }
+        } catch (parseError) {
+          // If JSON parsing fails, use fallback
+          suggestions = this.getFallbackSuggestions(destination, language);
+        }
+
+        return suggestions;
+
+      } catch (error) {
+        console.error('OpenAI suggestions error:', error.message);
+        
+        // Handle specific OpenAI API errors
+        if (error.message && error.message.includes('invalid_api_key')) {
+          console.error('⚠️  Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env file');
+        } else if (error.message && error.message.includes('insufficient_quota')) {
+          console.error('⚠️  OpenAI API quota exceeded. Please check your usage limits');
+        } else if (error.message && error.message.includes('rate_limit_exceeded')) {
+          console.error('⚠️  OpenAI rate limit exceeded. Please slow down requests');
+        }
+        
+        // Fallback to Google Gemini if available
+        if (this.model) {
+          return this.getGeminiSuggestions(destination, language, context);
+        } else {
+          return this.getFallbackSuggestions(destination, language);
+        }
+      }
+    } else if (this.model) {
+      // If OpenAI is not available but Gemini is, use Gemini
+      return this.getGeminiSuggestions(destination, language, context);
+    } else {
+      // If neither is available, use fallback
       return this.getFallbackSuggestions(destination, language);
     }
-
+  }
+  
+  async getGeminiSuggestions(destination, language = 'en', context = {}) {
     try {
       const prompt = `Generate 4 travel-related questions or suggestions for someone visiting ${destination}. Make them specific and helpful. Return as a JSON array of strings.`;
 

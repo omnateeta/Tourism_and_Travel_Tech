@@ -522,25 +522,27 @@ const AdvancedAssistant: React.FC = () => {
 
       {/* Suggestions */}
       {suggestions.length > 0 && (
-        <div className="relative px-6 py-4 border-t border-white/20 backdrop-blur-sm bg-white/30">
-          <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-500" />
+        <div className="relative px-4 py-3 border-t border-white/20 backdrop-blur-sm bg-white/30">
+          <p className="text-xs text-gray-600 mb-2 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Quick suggestions:
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {suggestions.map((suggestion, index) => (
               <motion.button
                 key={index}
                 onClick={() => handleSuggestionClick(suggestion.text)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white/80 text-gray-700 text-sm rounded-full transition-all shadow-sm border border-white/30"
-                whileHover={{ scale: 1.05, y: -2 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/60 hover:bg-white/80 text-gray-700 text-xs rounded-full transition-all shadow-sm border border-white/30"
+                whileHover={{ scale: 1.05, y: -1 }}
                 whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
-                {suggestion.icon}
-                {suggestion.text}
+                <div className="w-3.5 h-3.5 flex items-center justify-center">
+                  {suggestion.icon}
+                </div>
+                <span className="truncate max-w-[120px]">{suggestion.text}</span>
               </motion.button>
             ))}
           </div>

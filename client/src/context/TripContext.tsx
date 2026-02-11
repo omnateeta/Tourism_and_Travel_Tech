@@ -43,8 +43,8 @@ interface Itinerary {
   destination: {
     name: string;
     country: string;
-    lat: number;
-    lng: number;
+    lat?: number;
+    lng?: number;
   };
   startDate: string;
   endDate: string;
@@ -61,8 +61,8 @@ interface TripPreferences {
   duration: number;
   startDate: string;
   language: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
 }
 
 interface TripContextType {
@@ -82,8 +82,8 @@ const defaultPreferences: TripPreferences = {
   duration: 0,
   startDate: new Date().toISOString().split('T')[0],
   language: 'en',
-  lat: 0,
-  lng: 0,
+  lat: undefined,
+  lng: undefined,
 };
 
 const STORAGE_KEY = 'smart_travel_itinerary';

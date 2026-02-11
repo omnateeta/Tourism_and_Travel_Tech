@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, Calendar, DollarSign, Heart, Filter, Bed, Wifi, Car, Coffee, Utensils } from 'lucide-react';
+import { MapPin, Star, Calendar, DollarSign, Heart, Filter, Bed, Wifi, Car, Coffee, Utensils, Waves, TreePine, Mountain, Dumbbell, ConciergeBell, Sun, MapPinned } from 'lucide-react';
 import { hotelAPI } from '../services/api';
 
 interface Hotel {
@@ -110,17 +110,17 @@ const HotelBooking: React.FC<HotelBookingProps> = ({
   const amenitiesIcons: Record<string, React.ReactNode> = {
     wifi: <Wifi className="w-4 h-4" />,
     parking: <Car className="w-4 h-4" />,
-    pool: <Coffee className="w-4 h-4" />,
-    spa: <Bed className="w-4 h-4" />,
+    pool: <Waves className="w-4 h-4" />,
+    spa: <Sun className="w-4 h-4" />,
     breakfast: <Utensils className="w-4 h-4" />,
-    garden: <Coffee className="w-4 h-4" />,
-    beach: <Coffee className="w-4 h-4" />,
+    garden: <TreePine className="w-4 h-4" />,
+    beach: <Waves className="w-4 h-4" />,
     restaurant: <Utensils className="w-4 h-4" />,
     kitchen: <Utensils className="w-4 h-4" />,
-    lounge: <Coffee className="w-4 h-4" />,
-    fireplace: <Coffee className="w-4 h-4" />,
-    hiking: <Coffee className="w-4 h-4" />,
-    concierge: <Coffee className="w-4 h-4" />
+    lounge: <Bed className="w-4 h-4" />,
+    fireplace: <Sun className="w-4 h-4" />,
+    hiking: <Mountain className="w-4 h-4" />,
+    concierge: <ConciergeBell className="w-4 h-4" />
   };
 
   return (

@@ -40,3 +40,41 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Animations for Trip Planner */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+.animate-float-delay-1 { 
+  animation: float 7s ease-in-out 1s infinite; 
+}
+
+.animate-float-delay-2 { 
+  animation: float 8s ease-in-out 1.5s infinite; 
+}
+
+.animate-float-delay-3 { 
+  animation: float 6s ease-in-out 0.5s infinite; 
+}
+
+.animate-pulse-slow { 
+  animation: pulse-slow 8s ease-in-out infinite; 
+}
+
+/* Additional utility classes */
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+.rotate-12 {
+  transform: rotate(12deg);
+}

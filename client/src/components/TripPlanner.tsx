@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import '../App.css'; // Import global styles for animations
 import { useTrip } from '../context/TripContext';
 import { dataAPI, itineraryAPI, hotelAPI } from '../services/api';
 import { 
   MapPin, Calendar, DollarSign, Sparkles, Search, 
-  Loader2, Globe, CheckCircle, X
+  Loader2, Globe, CheckCircle, X, Bed, Star
 } from 'lucide-react';
 
 // Declare Google Translate types
@@ -352,6 +353,7 @@ const TripPlanner: React.FC = () => {
   
   // Import hotelAPI for triggering hotel search
   const [loadingHotels, setLoadingHotels] = useState(false);
+  const [hotelResults, setHotelResults] = useState<any[]>([]);
 
   // Fetch real-time exchange rates when destination changes
   useEffect(() => {
@@ -395,13 +397,14 @@ const TripPlanner: React.FC = () => {
             checkIn: preferences.startDate || '',
             checkOut: preferences.startDate ? new Date(new Date(preferences.startDate).setDate(new Date(preferences.startDate).getDate() + (preferences.duration || 3))).toISOString().split('T')[0] : '',
             guests: 2, // Default to 2 guests
-            lat: preferences.lat,
-            lng: preferences.lng
+            lat: (preferences.lat && !isNaN(preferences.lat)) ? preferences.lat : undefined,
+            lng: (preferences.lng && !isNaN(preferences.lng)) ? preferences.lng : undefined
           };
           
           // Perform the hotel search
           const response = await hotelAPI.search(searchParams);
           console.log('Hotel search results:', response.data);
+          setHotelResults(response.data.hotels || []);
           
         } catch (error) {
           console.error('Error searching hotels:', error);
@@ -493,13 +496,14 @@ const TripPlanner: React.FC = () => {
           checkIn: preferences.startDate || '',
           checkOut: preferences.startDate ? new Date(new Date(preferences.startDate).setDate(new Date(preferences.startDate).getDate() + (preferences.duration || 3))).toISOString().split('T')[0] : '',
           guests: 2, // Default to 2 guests
-          lat: place.lat,
-          lng: place.lng
+          lat: (place.lat && !isNaN(place.lat)) ? place.lat : undefined,
+          lng: (place.lng && !isNaN(place.lng)) ? place.lng : undefined
         };
         
         // Perform the hotel search
         const response = await hotelAPI.search(searchParams);
         console.log('Hotel search results:', response.data);
+        setHotelResults(response.data.hotels || []);
         
       } catch (error) {
         console.error('Error searching hotels:', error);
@@ -554,15 +558,21 @@ const TripPlanner: React.FC = () => {
     setIsGenerating(true);
 
     try {
-      const response = await itineraryAPI.generate({
+      const itineraryData: any = {
         destination: preferences.destination,
         interests: preferences.interests,
         budget: preferences.budget,
         duration: preferences.duration,
         startDate: preferences.startDate,
-        lat: preferences.lat,
-        lng: preferences.lng,
-      });
+      };
+      
+      // Only include coordinates if they are valid numbers
+      if (preferences.lat && !isNaN(preferences.lat) && preferences.lng && !isNaN(preferences.lng)) {
+        itineraryData.lat = preferences.lat;
+        itineraryData.lng = preferences.lng;
+      }
+      
+      const response = await itineraryAPI.generate(itineraryData);
 
       setCurrentItinerary(response.data.itinerary);
       
@@ -587,13 +597,14 @@ const TripPlanner: React.FC = () => {
             checkIn: preferences.startDate || '',
             checkOut: preferences.startDate ? new Date(new Date(preferences.startDate).setDate(new Date(preferences.startDate).getDate() + (preferences.duration || 3))).toISOString().split('T')[0] : '',
             guests: 2, // Default to 2 guests
-            lat: preferences.lat,
-            lng: preferences.lng
+            lat: (preferences.lat && !isNaN(preferences.lat)) ? preferences.lat : undefined,
+            lng: (preferences.lng && !isNaN(preferences.lng)) ? preferences.lng : undefined
           };
           
           // Perform the hotel search
           const hotelResponse = await hotelAPI.search(searchParams);
           console.log('Hotel search results after itinerary:', hotelResponse.data);
+          setHotelResults(hotelResponse.data.hotels || []);
           
         } catch (error) {
           console.error('Error searching hotels after itinerary:', error);
@@ -609,10 +620,101 @@ const TripPlanner: React.FC = () => {
   };
 
   return (
-    <>
-      {/* Success Notification */}
-      {showNotification && (
-        <motion.div
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 relative overflow-hidden">
+      {/* Advanced animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Travel-themed gradient spheres */}
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-300/30 via-purple-300/20 to-pink-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-emerald-300/30 via-teal-300/20 to-cyan-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-to-r from-amber-300/20 via-orange-300/20 to-red-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        
+        {/* Travel-themed floating elements */}
+        <div className="absolute top-16 left-12 animate-float">
+          <svg className="w-10 h-10 text-blue-400/50" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+          </svg>
+        </div>
+        <div className="absolute top-28 right-24 animate-float-delay-1">
+          <svg className="w-8 h-8 text-emerald-400/50" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-32 left-24 animate-float-delay-2">
+          <svg className="w-9 h-9 text-purple-400/50" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-24 right-20 animate-float-delay-3">
+          <svg className="w-8 h-8 text-amber-400/50" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+          </svg>
+        </div>
+        
+        {/* Airplane icon moving across the screen */}
+        <motion.div 
+          className="absolute top-1/4"
+          animate={{ x: ["-100%", "100vw"] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <svg className="w-12 h-12 text-sky-400/40" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+          </svg>
+        </motion.div>
+        
+        {/* Moving particles with travel themes */}
+        <div className="absolute inset-0">
+          {[...Array(25)].map((_, i) => (
+            <motion.div 
+              key={i}
+              className="absolute w-2 h-2 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                opacity: [0.3, 0.8, 0.3],
+                scale: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 3 + Math.random() * 4,
+                repeat: Infinity,
+                delay: Math.random() * 2
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Subtle wave pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
+        </div>
+        
+        {/* Additional travel-themed elements */}
+        <div className="absolute top-1/5 left-1/5 w-8 h-8 text-amber-300/40 rotate-45">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div className="absolute top-3/4 right-1/3 w-6 h-6 text-blue-300/40">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-1/4 left-1/3 w-7 h-7 text-green-300/40 rotate-12">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+      </div>
+      
+      <div className="relative z-10 w-full p-6">
+        <div className="max-w-4xl mx-auto w-full">
+        {/* Success Notification */}
+        {showNotification && (
+          <motion.div
           initial={{ opacity: 0, x: 100, y: 0 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={{ opacity: 0, x: 100 }}
@@ -634,11 +736,12 @@ const TripPlanner: React.FC = () => {
         </motion.div>
       )}
 
-      <div className="card p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-primary-500" />
-          Plan Your Trip
+      <div className="card p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+        <h2 className="text-4xl font-bold text-gray-900 mb-2 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <Sparkles className="w-10 h-10 inline mr-3" />
+          Plan Your Dream Trip
         </h2>
+        <p className="text-lg text-gray-600 text-center mb-8">Discover the world with personalized itineraries tailored just for you</p>
 
       {error && (
         <motion.div
@@ -662,7 +765,7 @@ const TripPlanner: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-field pl-10"
+              className="input-field pl-12 text-lg"
               placeholder="Search for a city or destination..."
             />
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" />
@@ -696,7 +799,7 @@ const TripPlanner: React.FC = () => {
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Interests
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-3">
             {INTERESTS.map((interest) => (
               <button
                 key={interest.id}
@@ -708,7 +811,7 @@ const TripPlanner: React.FC = () => {
                 }`}
               >
                 <span className="text-2xl">{interest.icon}</span>
-                <p className="text-sm font-medium mt-1">{interest.label}</p>
+                <p className="text-xs sm:text-sm font-medium mt-1">{interest.label}</p>
               </button>
             ))}
             {/* Other Button */}
@@ -721,7 +824,7 @@ const TripPlanner: React.FC = () => {
               }`}
             >
               <span className="text-2xl">✨</span>
-              <p className="text-sm font-medium mt-1">Other</p>
+              <p className="text-xs sm:text-sm font-medium mt-1">Other</p>
             </button>
           </div>
           
@@ -793,7 +896,7 @@ const TripPlanner: React.FC = () => {
             <select
               value={preferences.budget}
               onChange={(e) => setPreferences({ budget: e.target.value as any })}
-              className="input-field"
+              className="input-field text-lg"
             >
               <option value="low">Budget Friendly</option>
               <option value="medium">Moderate</option>
@@ -835,7 +938,7 @@ const TripPlanner: React.FC = () => {
               value={preferences.duration || ''}
               onChange={(e) => setPreferences({ duration: parseInt(e.target.value) || 0 })}
               placeholder="Enter days"
-              className="input-field"
+              className="input-field text-lg"
             />
           </div>
 
@@ -848,7 +951,7 @@ const TripPlanner: React.FC = () => {
               type="date"
               value={preferences.startDate}
               onChange={(e) => setPreferences({ startDate: e.target.value })}
-              className="input-field"
+              className="input-field text-lg"
             />
           </div>
         </div>
@@ -862,11 +965,51 @@ const TripPlanner: React.FC = () => {
           <div id="google_translate_element"></div>
         </div>
 
+        {/* Hotel Results Section */}
+        <div className="border-t border-gray-200 pt-6">
+          <h3 className="text-2xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Bed className="w-6 h-6 text-blue-500" />
+            Recommended Hotels for {preferences.destination?.split(',')[0] || 'your destination'}
+          </h3>
+          
+          {loadingHotels ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : hotelResults.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {hotelResults.slice(0, 6).map((hotel, index) => (
+                <div key={hotel.id || index} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow flex flex-col">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-medium text-gray-900 truncate flex-1 text-lg">{hotel.name}</h4>
+                    <div className="flex items-center gap-1 ml-2">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-base font-medium">{hotel.rating || 'N/A'}</span>
+                    </div>
+                  </div>
+                  <p className="text-base text-gray-600 mb-2 flex items-center gap-1 truncate">
+                    <MapPin className="w-4 h-4" />
+                    {hotel.location || hotel.distanceFromCenter}
+                  </p>
+                  <div className="flex justify-between items-center mt-auto pt-2">
+                    <span className="text-xl font-bold text-blue-600">${hotel.price}/night</span>
+                    <span className="text-sm text-gray-500 truncate">{hotel.distanceFromCenter || 'Distance N/A'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : preferences.destination ? (
+            <div className="text-center py-8 text-gray-500">
+              No hotels found for {preferences.destination}. Try another destination.
+            </div>
+          ) : null}
+        </div>
+        
         {/* Generate Button */}
         <button
           onClick={generateItinerary}
           disabled={isGenerating}
-          className="w-full btn-primary flex items-center justify-center gap-2 py-4 text-lg"
+          className="w-full btn-primary flex items-center justify-center gap-2 py-5 text-xl"
         >
           {isGenerating ? (
             <>
@@ -882,8 +1025,10 @@ const TripPlanner: React.FC = () => {
         </button>
       </div>
     </div>
-    </>
-  );
+  </div>
+</div>
+</div>
+);
 };
 
 export default TripPlanner;

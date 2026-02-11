@@ -44,9 +44,9 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Glass Header */}
-      <header className="glass sticky top-0 z-50 border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+      <header className="glass sticky top-0 z-50 border-b border-white/20 shadow-sm">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-20 max-w-7xl mx-auto w-full">
             {/* Logo */}
             <motion.div 
               className="flex items-center gap-3 cursor-pointer"
@@ -60,12 +60,12 @@ const Dashboard: React.FC = () => {
               <img 
                 src="/logo.png" 
                 alt="Tourism & Travel Tech" 
-                className="h-[130px] object-contain hover:opacity-90 transition-opacity" 
+                className="h-20 w-auto object-contain hover:opacity-90 transition-opacity" 
               />
             </motion.div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2 bg-white/50 backdrop-blur-sm rounded-2xl p-1.5 border border-white/60 shadow-sm">
+            <nav className="navbar-nav hidden md:flex items-center gap-1 lg:gap-2">
               {tabs.map((tab, index) => (
                 <motion.button
                   key={tab.id}
@@ -73,9 +73,9 @@ const Dashboard: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ${
+                  className={`nav-item relative flex items-center justify-center gap-1 lg:gap-2 px-2 lg:px-3 py-2 rounded-xl font-medium transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'text-white shadow-lg'
+                      ? 'nav-item-active text-white shadow-lg'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
                   }`}
                 >
@@ -86,9 +86,9 @@ const Dashboard: React.FC = () => {
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <span className="relative z-10 flex items-center gap-2">
-                    <tab.icon className="w-4 h-4" />
-                    {tab.label}
+                  <span className="nav-item-content relative z-10 flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1">
+                    <tab.icon className="w-5 h-5" />
+                    <span className="nav-item-label text-sm lg:text-base">{tab.label}</span>
                   </span>
                 </motion.button>
               ))}
@@ -125,14 +125,14 @@ const Dashboard: React.FC = () => {
                       setActiveTab(tab.id as any);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
+                    className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl font-medium transition-all ${
                       activeTab === tab.id
                         ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
                         : 'text-gray-600 hover:bg-white/60'
                     }`}
                   >
-                    <tab.icon className="w-5 h-5" />
-                    {tab.label}
+                    <tab.icon className="w-6 h-6" />
+                    <span className="text-lg">{tab.label}</span>
                   </motion.button>
                 ))}
               </div>
@@ -142,7 +142,8 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto w-full">
         <AnimatePresence mode="wait">
           {activeTab === 'home' && (
             <motion.div
@@ -163,7 +164,7 @@ const Dashboard: React.FC = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.98 }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
               <div className="lg:col-span-2 space-y-6">
                 <TripPlanner />
@@ -246,6 +247,7 @@ const Dashboard: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        </div> {/* Close the max-w-7xl container */}
       </main>
     </div>
   );

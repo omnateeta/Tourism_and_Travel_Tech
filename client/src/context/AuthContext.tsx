@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, profileAPI } from '../services/api';
 
 interface User {
   id: string;
@@ -17,6 +17,9 @@ interface User {
     zipCode?: string;
   };
   profileImage?: string;
+  profileImagePublicId?: string;
+  profileImageFormat?: string;
+  profileImageSize?: number;
   preferences: {
     interests: string[];
     budget: string;
@@ -32,6 +35,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
+  uploadProfileImage: (file: File) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +88,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(response.data.user);
   };
 
+  const uploadProfileImage = async (file: File) => {
+    try {
+      const response = await profileAPI.uploadImage(file);
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Failed to upload profile image:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -94,6 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         updateProfile,
+        uploadProfileImage,
       }}
     >
       {children}
