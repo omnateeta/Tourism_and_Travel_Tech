@@ -5,7 +5,7 @@ import { useTrip } from '../context/TripContext';
 import { 
   MapPin, Calendar, DollarSign, Compass, Globe, 
   Sparkles, Menu, X, Wind, Users, Ticket,
-  Leaf, Star, Clock, Map as MapIcon, MessageCircle, User, Bed
+  Leaf, Star, Clock, Map as MapIcon, MessageCircle, User, Bed, Shield
 } from 'lucide-react';
 import TripPlanner from '../components/TripPlanner';
 import ItineraryView from '../components/ItineraryView';
@@ -17,6 +17,7 @@ import Profile from '../components/Profile';
 import Home from '../components/Home';
 import DestinationShowcase from '../components/DestinationShowcase';
 import HotelBookingPage from '../components/HotelBookingPage';
+import SecurityContacts from '../components/SecurityContacts';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -94,14 +95,17 @@ const Dashboard: React.FC = () => {
               ))}
             </nav>
 
-            {/* Mobile Menu Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/60"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5 text-gray-700" /> : <Menu className="w-5 h-5 text-gray-700" />}
-            </motion.button>
+            <div className="flex items-center gap-2">
+              <SecurityContacts destination={preferences.destination} />
+              {/* Mobile Menu Button */}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-white/60"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5 text-gray-700" /> : <Menu className="w-5 h-5 text-gray-700" />}
+              </motion.button>
+            </div>
           </div>
         </div>
 
@@ -135,6 +139,9 @@ const Dashboard: React.FC = () => {
                     <span className="text-lg">{tab.label}</span>
                   </motion.button>
                 ))}
+                <div className="pt-2 border-t border-white/20 px-4">
+                  <SecurityContacts destination={preferences.destination} />
+                </div>
               </div>
             </motion.div>
           )}
