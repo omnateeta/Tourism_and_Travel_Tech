@@ -18,6 +18,7 @@ const notificationRoutes = require('./routes/notifications');
 const hotelRoutes = require('./routes/hotels');
 const profileRoutes = require('./routes/profile');
 const employeeRoutes = require('./routes/employees');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/hotels', hotelRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

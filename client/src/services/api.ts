@@ -137,6 +137,24 @@ export const employeeAPI = {
   initiateCall: (employeeId: string) => api.post('/employees/call', { employeeId }),
 };
 
+// Admin API
+export const adminAPI = {
+  // Employee management
+  getAllEmployees: () => api.get('/admin/employees'),
+  getEmployeeById: (id: string) => api.get(`/admin/employees/${id}`),
+  createEmployee: (data: any) => api.post('/admin/employees', data),
+  updateEmployee: (id: string, data: any) => api.put(`/admin/employees/${id}`, data),
+  deleteEmployee: (id: string) => api.delete(`/admin/employees/${id}`),
+  toggleEmployeeActive: (id: string) => api.patch(`/admin/employees/${id}/toggle-active`),
+  
+  // Bulk operations
+  bulkUpdateStatus: (employeeIds: string[], status: string) => 
+    api.patch('/admin/employees/bulk-status', { employeeIds, status }),
+  
+  // Statistics
+  getStats: () => api.get('/admin/stats'),
+};
+
 // Hotel API
 export const hotelAPI = {
   search: (params: {

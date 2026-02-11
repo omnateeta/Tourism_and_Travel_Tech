@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTrip } from '../context/TripContext';
+import { useAuth } from '../context/AuthContext';
 import { 
   Calendar, Compass, 
-  Sparkles, Menu, X, Map as MapIcon, MessageCircle, User, Bed, Headphones
+  Sparkles, Menu, X, Map as MapIcon, MessageCircle, User, Bed, Headphones, Shield
 } from 'lucide-react';
 import TripPlanner from '../components/TripPlanner';
 import ItineraryView from '../components/ItineraryView';
@@ -17,11 +18,17 @@ import DestinationShowcase from '../components/DestinationShowcase';
 import HotelBookingPage from '../components/HotelBookingPage';
 import SecurityContacts from '../components/SecurityContacts';
 import EmployeeGuide from '../components/EmployeeGuide';
+import AdminPanel from '../components/AdminPanel';
 
 const Dashboard: React.FC = () => {
   const { preferences } = useTrip();
-  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'hotels' | 'guide' | 'profile'>('home');
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'hotels' | 'guide' | 'profile' | 'admin'>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  
+  // Mock admin check - in real app, this would come from user role
+  const isAdmin = user?.email === 'admin@traveltech.com' || user?.email?.includes('admin');
 
   const tabs = [
     { id: 'home', label: 'Home', icon: Sparkles, color: 'from-amber-500 to-orange-500' },
@@ -32,6 +39,7 @@ const Dashboard: React.FC = () => {
     { id: 'hotels', label: 'Hotels', icon: Bed, color: 'from-indigo-500 to-purple-500' },
     { id: 'guide', label: 'Employee Guide', icon: Headphones, color: 'from-green-500 to-teal-500' },
     { id: 'profile', label: 'Profile', icon: User, color: 'from-rose-500 to-red-500' },
+    ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: Shield, color: 'from-gray-600 to-gray-800' }] : [])
   ];
 
   return (
@@ -46,7 +54,7 @@ const Dashboard: React.FC = () => {
       {/* Glass Header */}
       <header className="glass sticky top-0 z-50 border-b border-white/20 shadow-sm w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20 w-full mx-auto">
+          <div className="flex items-center justify-between h-16 md:h-20 w-full">
             {/* Logo */}
             <motion.div 
               className="flex items-center gap-3 cursor-pointer"
@@ -60,12 +68,12 @@ const Dashboard: React.FC = () => {
               <img 
                 src="/logo.png" 
                 alt="Tourism & Travel Tech" 
-                className="h-20 w-auto object-contain hover:opacity-90 transition-opacity" 
+                className="h-[120px] w-auto object-contain hover:opacity-90 transition-opacity" 
               />
             </motion.div>
 
             {/* Desktop Navigation */}
-            <nav className="navbar-nav hidden md:flex items-center gap-1 lg:gap-2">
+            <nav className="navbar-nav hidden md:flex items-center gap-2 lg:gap-3">
               {tabs.map((tab, index) => (
                 <motion.button
                   key={tab.id}
@@ -94,8 +102,18 @@ const Dashboard: React.FC = () => {
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <SecurityContacts destination={preferences.destination} />
+              {isAdmin && (
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAdminPanel(true)}
+                  className="hidden md:flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors shadow-md"
+                >
+                  <Shield size={20} />
+                  <span className="font-semibold">Admin Panel</span>
+                </motion.button>
+              )}
               {/* Mobile Menu Button */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -138,6 +156,21 @@ const Dashboard: React.FC = () => {
                     <span className="text-lg">{tab.label}</span>
                   </motion.button>
                 ))}
+                {isAdmin && (
+                  <motion.button
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: tabs.length * 0.05 }}
+                    onClick={() => {
+                      setShowAdminPanel(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-red-600 to-red-800 shadow-lg mt-2 hover:from-red-700 hover:to-red-900 transition-all"
+                  >
+                    <Shield className="w-6 h-6" />
+                    <span className="text-lg">Admin Panel</span>
+                  </motion.button>
+                )}
                 <div className="pt-2 border-t border-white/20 px-4">
                   <SecurityContacts destination={preferences.destination} />
                 </div>
@@ -264,9 +297,45 @@ const Dashboard: React.FC = () => {
               <Profile />
             </motion.div>
           )}
+
+          {activeTab === 'admin' && (
+            <motion.div
+              key="admin"
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              className="w-full"
+            >
+              <AdminPanel />
+            </motion.div>
+          )}
         </AnimatePresence>
         </div> {/* Close the max-w-7xl container */}
       </main>
+
+      {/* Admin Panel Modal */}
+      {showAdminPanel && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowAdminPanel(false)} />
+            
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-7xl sm:w-full sm:h-[90vh]">
+              <div className="absolute top-4 right-4 z-10">
+                <button
+                  onClick={() => setShowAdminPanel(false)}
+                  className="p-2 rounded-full bg-white hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="h-[90vh] overflow-y-auto">
+                <AdminPanel />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
