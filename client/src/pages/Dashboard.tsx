@@ -5,7 +5,7 @@ import { useTrip } from '../context/TripContext';
 import { 
   MapPin, Calendar, DollarSign, Compass, Globe, 
   Sparkles, Menu, X, Wind, Users, Ticket,
-  Leaf, Star, Clock, Map as MapIcon, MessageCircle, User
+  Leaf, Star, Clock, Map as MapIcon, MessageCircle, User, Bed
 } from 'lucide-react';
 import TripPlanner from '../components/TripPlanner';
 import ItineraryView from '../components/ItineraryView';
@@ -16,11 +16,12 @@ import AdvancedAssistant from '../components/AdvancedAssistant';
 import Profile from '../components/Profile';
 import Home from '../components/Home';
 import DestinationShowcase from '../components/DestinationShowcase';
+import HotelBookingPage from '../components/HotelBookingPage';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { currentItinerary, preferences } = useTrip();
-  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'profile'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'planner' | 'itinerary' | 'map' | 'assistant' | 'hotels' | 'profile'>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const tabs = [
@@ -29,6 +30,7 @@ const Dashboard: React.FC = () => {
     { id: 'itinerary', label: 'My Itinerary', icon: Calendar, color: 'from-purple-500 to-pink-500' },
     { id: 'map', label: 'Map View', icon: MapIcon, color: 'from-emerald-500 to-teal-500' },
     { id: 'assistant', label: 'Assistant', icon: MessageCircle, color: 'from-amber-500 to-orange-500' },
+    { id: 'hotels', label: 'Hotels', icon: Bed, color: 'from-indigo-500 to-purple-500' },
     { id: 'profile', label: 'Profile', icon: User, color: 'from-rose-500 to-red-500' },
   ];
 
@@ -217,6 +219,18 @@ const Dashboard: React.FC = () => {
               className="max-w-3xl mx-auto"
             >
               <AdvancedAssistant />
+            </motion.div>
+          )}
+
+          {activeTab === 'hotels' && (
+            <motion.div
+              key="hotels"
+              initial={{ opacity: 0, y: 30, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <HotelBookingPage />
             </motion.div>
           )}
 

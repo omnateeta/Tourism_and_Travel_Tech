@@ -96,20 +96,60 @@ const AdvancedAssistant: React.FC = () => {
   }, [preferences.destination, preferences.language]);
 
   useEffect(() => {
-    if (shouldAutoScroll) {
+    // Reset auto-scroll state when new messages come
+    setShouldAutoScroll(true);
+    
+    // Always scroll to bottom when new messages arrive
+    setTimeout(() => {
       scrollToBottom();
-    }
-  }, [messages, shouldAutoScroll]);
+    }, 50);
+    
+    // Make sure input field is ready after messages update
+    setTimeout(() => {
+      const inputElement = document.querySelector('input[placeholder*="Ask me"]') as HTMLInputElement;
+      if (inputElement && !inputElement.disabled) {
+        inputElement.focus();
+      }
+    }, 100);
+  }, [messages]);
+
+  // Effect to ensure input is ready after initial render
+  useEffect(() => {
+    // This ensures the input field is ready after the component mounts
+    // and after the initial welcome message is displayed
+    setTimeout(() => {
+      scrollToBottom();
+      // Focus the input field after initial render
+      const inputElement = document.querySelector('input[placeholder*="Ask me"]') as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }, 100);
+  }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Using requestAnimationFrame to ensure DOM has updated
+    requestAnimationFrame(() => {
+      if (messagesContainerRef.current) {
+        // Scroll to the absolute bottom
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        
+        // Also update the shouldAutoScroll state to reflect that we're at the bottom
+        setShouldAutoScroll(true);
+      }
+    });
   };
 
   const handleScroll = () => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+      const isAtBottom = Math.abs(scrollTop + clientHeight - scrollHeight) <= 10;
       setShouldAutoScroll(isAtBottom);
+      
+      // If user scrolls up, temporarily disable auto-scroll
+      if (!isAtBottom) {
+        setShouldAutoScroll(false);
+      }
     }
   };
 
@@ -192,8 +232,12 @@ const AdvancedAssistant: React.FC = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
     setIsTyping(true);
+    
+    // Clear input after a small delay to ensure message is sent
+    setTimeout(() => {
+      setInput('');
+    }, 100);
 
     try {
       const response = await assistantAPI.chat({
@@ -221,7 +265,12 @@ const AdvancedAssistant: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, botMessage]);
-      
+          
+      // Force scroll to bottom after adding message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 50);
+          
       // Speak the response if enabled
       if (isSpeaking) {
         speakText(response.data.response);
@@ -236,6 +285,11 @@ const AdvancedAssistant: React.FC = () => {
         category: 'error'
       };
       setMessages((prev) => [...prev, errorMessage]);
+      
+      // Force scroll to bottom after error message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 50);
     } finally {
       setIsTyping(false);
     }
@@ -328,7 +382,7 @@ const AdvancedAssistant: React.FC = () => {
       {/* Messages */}
       <div 
         ref={messagesContainerRef}
-        className="relative flex-1 overflow-y-auto p-6 space-y-6"
+        className="relative flex-1 overflow-y-auto p-6 space-y-6 max-h-[50vh]"
         onScroll={handleScroll}
       >
         <AnimatePresence>
@@ -450,6 +504,7 @@ const AdvancedAssistant: React.FC = () => {
       {!shouldAutoScroll && (
         <motion.button
           onClick={() => {
+            // Immediately enable auto-scroll and scroll to bottom
             setShouldAutoScroll(true);
             scrollToBottom();
           }}
@@ -515,7 +570,8 @@ const AdvancedAssistant: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={isListening ? "Listening... Speak now" : "Ask me anything about travel..."}
-              className="w-full px-5 py-4 bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-gray-800 placeholder-gray-500 transition-all"
+              className="w-full px-5 py-4 bg-white/90 backdrop-blur-sm border border-white/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-gray-800 placeholder-gray-500 transition-all"
+              disabled={isTyping}
             />
             {input && (
               <motion.div 
@@ -531,7 +587,7 @@ const AdvancedAssistant: React.FC = () => {
           <motion.button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
+            className="px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl hover:from-blue-600 hover:to-purple-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-lg flex items-center gap-2"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

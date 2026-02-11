@@ -104,4 +104,38 @@ export const notificationsAPI = {
   testNotification: () => api.post('/notifications/test'),
 };
 
+// Hotel API
+export const hotelAPI = {
+  search: (params: {
+    destination?: string;
+    checkIn?: string;
+    checkOut?: string;
+    guests?: number;
+    lat?: number;
+    lng?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params.destination) queryParams.append('destination', params.destination);
+    if (params.checkIn) queryParams.append('checkIn', params.checkIn);
+    if (params.checkOut) queryParams.append('checkOut', params.checkOut);
+    if (params.guests) queryParams.append('guests', params.guests.toString());
+    if (params.lat) queryParams.append('lat', params.lat.toString());
+    if (params.lng) queryParams.append('lng', params.lng.toString());
+    
+    return api.get(`/hotels?${queryParams.toString()}`);
+  },
+  
+  getDetails: (id: string) => api.get(`/hotels/${id}`),
+  
+  book: (data: {
+    hotelId: string;
+    checkIn: string;
+    checkOut: string;
+    guests: number;
+    rooms: number;
+  }) => api.post('/hotels/book', data),
+  
+  getBookings: () => api.get('/hotels/bookings'),
+};
+
 export default api;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTrip } from '../context/TripContext';
+import JourneyPath from './JourneyPath';
 import { 
   Calendar, Clock, MapPin, Leaf, Users, 
   Sparkles, Star, ChevronDown, ChevronUp,

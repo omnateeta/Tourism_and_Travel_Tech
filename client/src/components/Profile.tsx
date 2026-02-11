@@ -156,7 +156,7 @@ const Profile: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setIsEditing(true)}
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all border border-white/20"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit Profile
@@ -165,7 +165,7 @@ const Profile: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={logout}
-                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all border border-white/20"
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg"
                 >
                   <LogOut className="w-4 h-4" />
                   Exit
@@ -177,7 +177,7 @@ const Profile: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleCancel}
-                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all border border-white/20"
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg"
                 >
                   <X className="w-4 h-4" />
                   Cancel

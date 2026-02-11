@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTrip } from '../context/TripContext';
-import { dataAPI, itineraryAPI } from '../services/api';
+import { dataAPI, itineraryAPI, hotelAPI } from '../services/api';
 import { 
   MapPin, Calendar, DollarSign, Sparkles, Search, 
   Loader2, Globe, CheckCircle, X
@@ -349,6 +349,9 @@ const TripPlanner: React.FC = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
   const [loadingRates, setLoadingRates] = useState(false);
+  
+  // Import hotelAPI for triggering hotel search
+  const [loadingHotels, setLoadingHotels] = useState(false);
 
   // Fetch real-time exchange rates when destination changes
   useEffect(() => {
@@ -377,6 +380,39 @@ const TripPlanner: React.FC = () => {
 
     fetchExchangeRates();
   }, [preferences.destination]);
+
+  // Trigger hotel search when destination is selected
+  useEffect(() => {
+    const searchHotelsForDestination = async () => {
+      if (preferences.destination && preferences.destination.trim() !== '') {
+        try {
+          setLoadingHotels(true);
+          console.log('Triggering hotel search for:', preferences.destination);
+          
+          // Prepare search parameters
+          const searchParams = {
+            destination: preferences.destination,
+            checkIn: preferences.startDate || '',
+            checkOut: preferences.startDate ? new Date(new Date(preferences.startDate).setDate(new Date(preferences.startDate).getDate() + (preferences.duration || 3))).toISOString().split('T')[0] : '',
+            guests: 2, // Default to 2 guests
+            lat: preferences.lat,
+            lng: preferences.lng
+          };
+          
+          // Perform the hotel search
+          const response = await hotelAPI.search(searchParams);
+          console.log('Hotel search results:', response.data);
+          
+        } catch (error) {
+          console.error('Error searching hotels:', error);
+        } finally {
+          setLoadingHotels(false);
+        }
+      }
+    };
+    
+    searchHotelsForDestination();
+  }, [preferences.destination, preferences.startDate, preferences.duration]);
 
   const getExchangeRateDisplay = () => {
     const currency = getCurrencyForDestination(preferences.destination);
@@ -444,6 +480,33 @@ const TripPlanner: React.FC = () => {
     });
     setSearchQuery(place.name);
     setSearchResults([]);
+    
+    // Automatically trigger hotel search for the selected destination
+    setTimeout(async () => {
+      try {
+        setLoadingHotels(true);
+        console.log('Triggering hotel search for:', place.fullName);
+        
+        // Prepare search parameters
+        const searchParams = {
+          destination: place.fullName,
+          checkIn: preferences.startDate || '',
+          checkOut: preferences.startDate ? new Date(new Date(preferences.startDate).setDate(new Date(preferences.startDate).getDate() + (preferences.duration || 3))).toISOString().split('T')[0] : '',
+          guests: 2, // Default to 2 guests
+          lat: place.lat,
+          lng: place.lng
+        };
+        
+        // Perform the hotel search
+        const response = await hotelAPI.search(searchParams);
+        console.log('Hotel search results:', response.data);
+        
+      } catch (error) {
+        console.error('Error searching hotels:', error);
+      } finally {
+        setLoadingHotels(false);
+      }
+    }, 100); // Small delay to ensure state is updated
   };
 
   const toggleInterest = (interestId: string) => {
@@ -511,6 +574,33 @@ const TripPlanner: React.FC = () => {
       setTimeout(() => {
         setShowNotification(false);
       }, 4000);
+      
+      // Trigger hotel search after itinerary generation
+      setTimeout(async () => {
+        try {
+          setLoadingHotels(true);
+          console.log('Triggering hotel search after itinerary generation for:', preferences.destination);
+          
+          // Prepare search parameters
+          const searchParams = {
+            destination: preferences.destination,
+            checkIn: preferences.startDate || '',
+            checkOut: preferences.startDate ? new Date(new Date(preferences.startDate).setDate(new Date(preferences.startDate).getDate() + (preferences.duration || 3))).toISOString().split('T')[0] : '',
+            guests: 2, // Default to 2 guests
+            lat: preferences.lat,
+            lng: preferences.lng
+          };
+          
+          // Perform the hotel search
+          const hotelResponse = await hotelAPI.search(searchParams);
+          console.log('Hotel search results after itinerary:', hotelResponse.data);
+          
+        } catch (error) {
+          console.error('Error searching hotels after itinerary:', error);
+        } finally {
+          setLoadingHotels(false);
+        }
+      }, 1000); // Delay to ensure everything is settled after itinerary generation
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to generate itinerary');
     } finally {
