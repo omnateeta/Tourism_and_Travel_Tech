@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@openrouter/sdk": "^0.8.0"
+    "@openrouter/sdk": "^0.8.0",
+    "cloudinary": "^2.9.0"
   }
 }
