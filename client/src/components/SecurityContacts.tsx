@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Shield, Phone, MapPin, AlertTriangle, Radio, RotateCcw } from 'lucide-react';
 import { securityService, type SecurityContact } from '../services/securityService';
 
@@ -7,6 +7,7 @@ const SecurityContacts: React.FC<{ destination?: string }> = ({ destination }) =
   const [isLoading, setIsLoading] = useState(false);
   const [contacts, setContacts] = useState<SecurityContact[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (destination) {
@@ -15,6 +16,23 @@ const SecurityContacts: React.FC<{ destination?: string }> = ({ destination }) =
       setContacts([]);
     }
   }, [destination]);
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const fetchSecurityContacts = async (dest: string) => {
     setIsLoading(true);
@@ -72,7 +90,7 @@ const SecurityContacts: React.FC<{ destination?: string }> = ({ destination }) =
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+        <div ref={modalRef} className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
           <div className="bg-gradient-to-r from-red-500 to-red-600 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-white">
