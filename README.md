@@ -176,7 +176,7 @@ Tourism_and_Travel_Tech/
 - Places and attractions are fetched from OpenStreetMap
 - Events use PredictHQ if API key is provided, otherwise generates realistic mock events
 - All features are fully functional and interactive
-- Responsive design works on desktop and mobile
+- Responsive design works on desktop and mobile and
 
 ## License
 
