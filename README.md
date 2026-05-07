@@ -2,7 +2,7 @@
 
 A full-stack tourism platform with AI-powered personalized itineraries, real-time travel intelligence, and sustainability-focused recommendations.
 
-## Features
+## Features..
 
 - **AI-Powered Itinerary Generator**: Creates personalized day-by-day travel plans based on interests, budget, and preferences
 - **Real-Time Weather**: Live weather forecasts using Open-Meteo API
