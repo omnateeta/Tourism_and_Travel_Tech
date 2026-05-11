@@ -15,7 +15,7 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
+```js  
 export default defineConfig([
   globalIgnores(['dist']),
   {
@@ -54,7 +54,7 @@ export default defineConfig([
   globalIgnores(['dist']),
   {
     files: ['**/*.{ts,tsx}'],
-    extends: [
+    extends: [ 
       // Other configs...
       // Enable lint rules for React
       reactX.configs['recommended-typescript'],
